@@ -1,18 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { color, motion } from "framer-motion"
 import { KanbanColumn } from "./kanban-column"
 import { KanbanCard } from "./kanban-card"
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {LetterSentPopup} from "./popup";
 
 interface SKU {
   id: string;
   name: string;
   selected: boolean;
+  comment?: string
 }
 
 interface Task {
+  provider: string;
   id: string;
   title: string;
   assignee: string;
@@ -22,13 +26,13 @@ interface Task {
 }
 
 const columns = [
-  { id: "new", title: "Solicitud Nueva Reserva" },
-  { id: "pending", title: "Reserva pendiente" },
-  { id: "letter-sent", title: "Carta enviada" },
-  { id: "total-reserved", title: "Reservado Total" },
-  { id: "partial-reserved", title: "Reservado Parcial" },
-  { id: "denied", title: "Negado" },
-  { id: "total-with-passengers", title: "Reservado total con lista pasajeros" },
+  { id: "new", title: "Solicitud Nueva Reserva", color: "bg-gray-100" },
+  { id: "pending", title: "Reserva pendiente" , color: "bg-orange-100" },
+  { id: "letter-sent", title: "Carta enviada" , color: "bg-green-100" },
+  { id: "total-reserved", title: "Reservado Total" , color: "bg-green-200" },
+  { id: "partial-reserved", title: "Reservado Parcial" , color: "bg-yellow-200" },
+  { id: "denied", title: "Negado" , color: "bg-red-200" },
+  { id: "total-with-passengers", title: "Reservado total con lista pasajeros" , color: "bg-blue-200" },
 ]
 
 
@@ -40,6 +44,8 @@ const generateMockTasks = (type: string): Task[] => {
     modificacion: "MOD",
     cancelacion: "CAN"
   }
+
+  const providers = ["Finch Bay", "Casa Gangotena" , "Mashpi"];
   
 /*   return Array.from({ length: 15 }, (_, i) => ({
     id: `${types[type as keyof typeof types]}-${i + 1000}`,
@@ -55,12 +61,13 @@ const generateMockTasks = (type: string): Task[] => {
   })) */
 
 
-    return Array.from({length:1}, (_, i) => ({
+    return Array.from({length:20}, (_, i) => ({
+      provider: providers[Math.floor(Math.random() * 3)],
       id: `${types[type as keyof typeof types]}-${i + 1000}`,
       title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
       assignee: ["Juan Pérez", "María García", "Carlos López"][Math.floor(Math.random() * 3)],
       state: "new",
-      skus: Array.from({length:2}, (_, j) => ({
+      skus: Array.from({length:20}, (_, j) => ({
         id: `${i + 1000}-${j + 1}`,
         name: ["FBH_Night_RCA-2_[2-0-0]_EXT", "FBH_Night_SPBY4_[2-0-2]_EXT", "VAN_GYE-GCE_PRV-4-5_[0-1-0]_EXT",
           "GPS_FD Land Tour (Tortuga Bay - Lunch - ECD)_PRV-4-5_[1-0-0]_EXT", "GPS_HD HIGHLAND TOUR_PRV-4-5_[1-0-0]_LOC"][Math.floor(Math.random() * 5)],
@@ -75,6 +82,7 @@ interface KanbanBoardProps {
 
 export function KanbanBoard({ type }: KanbanBoardProps) {
   const [tasks, setTasks] = useState<Task[]>(generateMockTasks(type));
+  const [showPopup, setShowPopup] = useState(false);
 
   const deleteTaskById = (id: string) => {
     const newTasks = tasks.filter(task => task.id !== id);
@@ -98,44 +106,55 @@ export function KanbanBoard({ type }: KanbanBoardProps) {
     return;
   }
   if(columnId === task.state){
+    toast.error("No se puede mover a la misma columna")
     console.log("No se puede mover a la misma columna")
     return;
   }
 
 
   if(task.state === "new" && columnId !== "pending"){
+    toast.error("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
     console.log("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
     return;
   }
   if(task.state === "pending" && columnId !== "letter-sent"){
+    toast.error("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
     console.log("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
     return;
   }
   //No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado
   if(task.state === "letter-sent" && columnId !== "total-reserved" && columnId !== "partial-reserved" && columnId !== "denied"){
+    toast.error("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
     console.log("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
     return;
   }
 
   if(task.state === "total-reserved" && columnId !== "total-with-passengers"){
+    toast.error("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
     console.log("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
     return;
   }
 
   if(task.state === "partial-reserved" && columnId !== "total-with-passengers"){
+    toast.error("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
     console.log("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
     return;
   }
 
   if(task.state == "total-with-passengers"){
+    toast.error("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
     console.log("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
     return;
   }
 
   if(task.state == "denied"){
+    toast.error("No se puede mover una solicitud denegada a una columna distinta")
     console.log("No se puede mover una solicitud denegada a una columna distinta")
     return;
   }
+
+
+
 
 
   const selectedSKUs = task.skus.filter(sku => sku.selected);
@@ -168,10 +187,38 @@ export function KanbanBoard({ type }: KanbanBoardProps) {
 
 
     // 3. Actualizar el estado completo
-    setTasks(tasks => [
+
+
+    if (newTask.state === "letter-sent"){
+      setShowPopup(true);
+          setTasks(tasks => [
       ...tasks.map(t => t.id === taskId ? updatedOriginalTask : t),
       newTask
     ]);
+
+    }else if(newTask.state === "total-with-passengers"){
+      setShowPopup(true);
+          setTasks(tasks => [
+      ...tasks.map(t => t.id === taskId ? updatedOriginalTask : t),
+      newTask
+    ]);
+
+    
+
+    }else{
+          setTasks(tasks => [
+      ...tasks.map(t => t.id === taskId ? updatedOriginalTask : t),
+      newTask
+    ]);
+
+      toast.success("Estado existoso")
+    }
+
+
+
+
+  }else{
+    toast.error("No haz seleccionado ningún SKU")
   }
 };
 
@@ -202,6 +249,7 @@ const updateTask = (updatedTask: Task) => {
           title={column.title}
           onDragOver={handleDragOver} // Ahora está definido
           onDrop={(e) => handleDrop(e, column.id)}
+          color={column.color}
         >
           {tasks
             .filter(task => task.state === column.id)
@@ -222,6 +270,10 @@ const updateTask = (updatedTask: Task) => {
             ))}
         </KanbanColumn>
       ))}
+      <ToastContainer position="top-right" autoClose={5000} />
+      {showPopup && (
+        <LetterSentPopup onClose={() => setShowPopup(false)} />
+      )}
     </div>
   );
 }
