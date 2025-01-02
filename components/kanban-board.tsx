@@ -1,0 +1,227 @@
+"use client"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { KanbanColumn } from "./kanban-column"
+import { KanbanCard } from "./kanban-card"
+
+
+interface SKU {
+  id: string;
+  name: string;
+  selected: boolean;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  assignee: string;
+  priority?: "low" | "medium" | "high";
+  skus: SKU[],
+  state: string;
+}
+
+const columns = [
+  { id: "new", title: "Solicitud Nueva Reserva" },
+  { id: "pending", title: "Reserva pendiente" },
+  { id: "letter-sent", title: "Carta enviada" },
+  { id: "total-reserved", title: "Reservado Total" },
+  { id: "partial-reserved", title: "Reservado Parcial" },
+  { id: "denied", title: "Negado" },
+  { id: "total-with-passengers", title: "Reservado total con lista pasajeros" },
+]
+
+
+
+// Mock data generator
+const generateMockTasks = (type: string): Task[] => {
+  const types = {
+    solicitud: "SOL",
+    modificacion: "MOD",
+    cancelacion: "CAN"
+  }
+  
+/*   return Array.from({ length: 15 }, (_, i) => ({
+    id: `${types[type as keyof typeof types]}-${i + 1000}`,
+    title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
+    assignee: ["Juan Pérez", "María García", "Carlos López"][Math.floor(Math.random() * 3)],
+    state: columns[Math.floor(Math.random() * columns.length)].id,
+    skus: Array.from({ length: Math.floor(Math.random() * 5) + 1 }, (_, j) => ({
+      id: `${i + 1000}-${j + 1}`,
+      name: ["FBH_Night_RCA-2_[2-0-0]_EXT", "FBH_Night_SPBY4_[2-0-2]_EXT", "VAN_GYE-GCE_PRV-4-5_[0-1-0]_EXT",
+        "GPS_FD Land Tour (Tortuga Bay - Lunch - ECD)_PRV-4-5_[1-0-0]_EXT", "GPS_HD HIGHLAND TOUR_PRV-4-5_[1-0-0]_LOC"][Math.floor(Math.random() * 5)],
+      selected: false
+    }))
+  })) */
+
+
+    return Array.from({length:1}, (_, i) => ({
+      id: `${types[type as keyof typeof types]}-${i + 1000}`,
+      title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
+      assignee: ["Juan Pérez", "María García", "Carlos López"][Math.floor(Math.random() * 3)],
+      state: "new",
+      skus: Array.from({length:2}, (_, j) => ({
+        id: `${i + 1000}-${j + 1}`,
+        name: ["FBH_Night_RCA-2_[2-0-0]_EXT", "FBH_Night_SPBY4_[2-0-2]_EXT", "VAN_GYE-GCE_PRV-4-5_[0-1-0]_EXT",
+          "GPS_FD Land Tour (Tortuga Bay - Lunch - ECD)_PRV-4-5_[1-0-0]_EXT", "GPS_HD HIGHLAND TOUR_PRV-4-5_[1-0-0]_LOC"][Math.floor(Math.random() * 5)],
+          selected: false
+      }))
+    }))
+}
+
+interface KanbanBoardProps {
+  type: string
+}
+
+export function KanbanBoard({ type }: KanbanBoardProps) {
+  const [tasks, setTasks] = useState<Task[]>(generateMockTasks(type));
+
+  const deleteTaskById = (id: string) => {
+    const newTasks = tasks.filter(task => task.id !== id);
+    setTasks(newTasks);
+  };
+  const handleDragStart = (event: React.DragEvent, taskId: string) => {
+    event.dataTransfer.setData('text/plain', taskId);
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault(); // Permite que el evento de drop funcione correctamente
+  };
+
+  const handleDrop = (event: React.DragEvent, columnId: string) => {
+  
+  const taskId = event.dataTransfer.getData("text/plain");
+  const task = tasks.find(task => task.id === taskId);
+  
+  if (!task) {
+    console.error("Task not found");
+    return;
+  }
+  if(columnId === task.state){
+    console.log("No se puede mover a la misma columna")
+    return;
+  }
+
+
+  if(task.state === "new" && columnId !== "pending"){
+    console.log("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
+    return;
+  }
+  if(task.state === "pending" && columnId !== "letter-sent"){
+    console.log("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
+    return;
+  }
+  //No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado
+  if(task.state === "letter-sent" && columnId !== "total-reserved" && columnId !== "partial-reserved" && columnId !== "denied"){
+    console.log("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
+    return;
+  }
+
+  if(task.state === "total-reserved" && columnId !== "total-with-passengers"){
+    console.log("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
+    return;
+  }
+
+  if(task.state === "partial-reserved" && columnId !== "total-with-passengers"){
+    console.log("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
+    return;
+  }
+
+  if(task.state == "total-with-passengers"){
+    console.log("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
+    return;
+  }
+
+  if(task.state == "denied"){
+    console.log("No se puede mover una solicitud denegada a una columna distinta")
+    return;
+  }
+
+
+  const selectedSKUs = task.skus.filter(sku => sku.selected);
+  
+  if (selectedSKUs.length > 0) {
+    // 1. Crear nueva tarea en la nueva columna solo con SKUs seleccionados
+    const newTask = {
+      ...task,
+      skus: selectedSKUs,  // Solo los SKUs seleccionados
+      id: `${taskId}-${Date.now()}`,
+      state: columnId      // Nueva columna
+    };
+
+    // 2. Mantener la tarea original con solo los SKUs no seleccionados
+    const updatedOriginalTask = {
+      ...task,
+      skus: task.skus.filter(sku => !sku.selected),
+      id: `${taskId}-${Date.now()}-1`,
+      state: task.state    // Mantener en la columna original
+    };
+
+    if(updatedOriginalTask.skus.length === 0){
+      deleteTaskById(taskId)
+    }else{
+      console.log(updatedOriginalTask)
+      tasks.push(updatedOriginalTask)
+      deleteTaskById(taskId)
+    }
+
+
+
+    // 3. Actualizar el estado completo
+    setTasks(tasks => [
+      ...tasks.map(t => t.id === taskId ? updatedOriginalTask : t),
+      newTask
+    ]);
+  }
+};
+
+
+
+const updateTask = (updatedTask: Task) => {
+  // Crear un nuevo array de tareas usando map para evitar mutaciones
+  const newTasks = tasks.map(task => {
+    if (task.id === updatedTask.id) {
+      // Retornar una nueva tarea con los SKUs actualizados
+      return {
+        ...task,
+        skus: [...updatedTask.skus] // Crear una nueva copia del array de SKUs
+      };
+    }
+    return task;
+  });
+  
+  // Actualizar el estado con el nuevo array
+  setTasks(newTasks);
+};
+
+  return (
+    <div className="grid grid-cols-7 gap-[22em] overflow-x-auto">
+      {columns.map((column) => (
+        <KanbanColumn
+          key={column.id}
+          title={column.title}
+          onDragOver={handleDragOver} // Ahora está definido
+          onDrop={(e) => handleDrop(e, column.id)}
+        >
+          {tasks
+            .filter(task => task.state === column.id)
+            .map((task) => (
+              <motion.div
+                key={task.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <KanbanCard
+                  task={task}
+                  onDragStart={(e) => handleDragStart(e, task.id)}
+                  onSKUUpdate={updateTask}
+                />
+              </motion.div>
+            ))}
+        </KanbanColumn>
+      ))}
+    </div>
+  );
+}
