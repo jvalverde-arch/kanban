@@ -105,7 +105,10 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
                     onChange={() => handleCheckboxChange(sku.id)}
                     className="rounded border-gray-300 text-primary focus:ring-primary"
                   />
-                  <label htmlFor={`sku-${sku.id}`} className="text-xs text-gray-700">{sku.name}</label>
+                    <div className="flex flex-row w-full justify-between items-center">
+                    <label htmlFor={`sku-${sku.id}`} className="text-xs text-gray-700 flex-1">{sku.name}</label>
+                    <span className="text-xs text-gray-700 whitespace-nowrap">12/12/24 al 12/12/24</span>
+                    </div>
                 </div>
               ))
             ) : (
