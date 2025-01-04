@@ -20,7 +20,7 @@ export function KanbanColumn({
   console.log(title)
   return (
     <div
-      className={`min-w-[350px] rounded-lg p-4 ${color} shadow-sm transition-transform duration-200 ease-in-out transform hover:scale-[200em]}`}
+      className={`min-w-[350px] rounded-lg p-4 ${color}`}
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
