@@ -70,7 +70,7 @@ const generateMockTasks = (type: string): Task[] => {
       id: `${types[type as keyof typeof types]}-${i + 1000}`,
       title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
       assignee: ["Juan Pérez", "María García", "Carlos López"][Math.floor(Math.random() * 3)],
-      state: "letter_sent",
+      state: "new",
       skus: Array.from({length:10}, (_, j) => ({
         id: `${i + 1000}-${j + 1}`,
         name: ["FBH_Night_RCA-2_[2-0-0]_EXT", "FBH_Night_SPBY4_[2-0-2]_EXT", "VAN_GYE-GCE_PRV-4-5_[0-1-0]_EXT",
@@ -428,6 +428,7 @@ const updateTask = (updatedTask: Task) => {
                   onDragStart={(e) => handleDragStart(e, task.id)}
                   onSKUUpdate={updateTask}
                 />
+                 <div className="flex flex-col gap-2 p-2"></div>
               </motion.div>
             ))}
         </div>
@@ -458,6 +459,7 @@ const updateTask = (updatedTask: Task) => {
                   onDragStart={(e) => handleDragStart(e, task.id)}
                   onSKUUpdate={updateTask}
                 />
+                 <div className="flex flex-col gap-2 p-2"></div>
               </motion.div>
             ))}
         </div>
