@@ -7,6 +7,7 @@ import { KanbanCard } from "./kanban-card"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {LetterSentPopup} from "./popup";
+import { ViewSKUList } from "@/components/viewSKUList"
 
 interface SKU {
   id: string;
@@ -61,17 +62,17 @@ const generateMockTasks = (type: string): Task[] => {
   })) */
 
 
-    return Array.from({length:20}, (_, i) => ({
+    return Array.from({length:3}, (_, i) => ({
       provider: providers[Math.floor(Math.random() * 3)],
       id: `${types[type as keyof typeof types]}-${i + 1000}`,
       title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
       assignee: ["Juan Pérez", "María García", "Carlos López"][Math.floor(Math.random() * 3)],
-      state: "new",
-      skus: Array.from({length:20}, (_, j) => ({
+      state: "letter_sent",
+      skus: Array.from({length:10}, (_, j) => ({
         id: `${i + 1000}-${j + 1}`,
         name: ["FBH_Night_RCA-2_[2-0-0]_EXT", "FBH_Night_SPBY4_[2-0-2]_EXT", "VAN_GYE-GCE_PRV-4-5_[0-1-0]_EXT",
           "GPS_FD Land Tour (Tortuga Bay - Lunch - ECD)_PRV-4-5_[1-0-0]_EXT", "GPS_HD HIGHLAND TOUR_PRV-4-5_[1-0-0]_LOC"][Math.floor(Math.random() * 5)],
-          selected: false
+          selected: true
       }))
     }))
 }
@@ -120,6 +121,33 @@ interface KanbanBoardProps {
 export function KanbanBoard({ type }: KanbanBoardProps) {
   const [tasks, setTasks] = useState<Task[]>(generateMockTasks(type));
   const [showPopup, setShowPopup] = useState(false);
+  const [showPartialPopup, setShowPartialPopup] = useState(false);
+  const [taskMoving, setTaskMoving] = useState<Task | null>(null);
+
+
+const setATask = (newTasksUpdated: Task[]) => {
+  console.log("Task from another component", newTasksUpdated);
+
+  // Crear nuevas tareas basadas en el estado
+  const updatedTasks = newTasksUpdated.flatMap((task) => {
+    if (task.state === "denied") {
+      return [{ ...task, id: `${task.id}-Denied`, state: "denied" }];
+    }
+    if (task.state === "partial_reserved") {
+      return [{ ...task, id: `${task.id}-Reserved`, state: "reserved" }];
+    }
+    return [];
+  });
+
+  console.log("Updated Tasks", updatedTasks);
+
+  // Eliminar las tareas originales y añadir las nuevas
+  setTasks([...tasks, ...updatedTasks]);
+};
+
+
+
+
 
   const [count, setCount] = useState(countTasksByState(tasks));
 
@@ -152,6 +180,9 @@ export function KanbanBoard({ type }: KanbanBoardProps) {
     console.error("Task not found");
     return;
   }
+  setTaskMoving(task);
+
+
   if(columnId === task.state){
     toast.error("No se puede mover a la misma columna")
     console.log("No se puede mover a la misma columna")
@@ -246,6 +277,20 @@ export function KanbanBoard({ type }: KanbanBoardProps) {
       ...tasks.map(t => t.id === taskId ? updatedOriginalTask : t),
       newTask
     ]);
+    }
+    
+    else if (newTask.state === "partial_reserved"){
+      setShowPartialPopup(true);
+          setTasks(tasks => [
+      ...tasks.map(t => t.id === taskId ? updatedOriginalTask : t),
+      newTask
+
+
+    ]);
+
+    
+
+
 
     //update count
     setCount(countTasksByState(tasks));
@@ -333,6 +378,18 @@ const updateTask = (updatedTask: Task) => {
                 />
               </motion.div>
             ))}
+            {showPartialPopup &&
+                <ViewSKUList
+                  taskID={taskMoving?.id}
+                  skus={taskMoving?.skus}
+                  onClose={() => setShowPartialPopup(false)}
+                  isPartial={true}
+                  setTask={setATask}
+                  tasks={tasks}
+                  >
+                  </ViewSKUList>
+              }
+
         </KanbanColumn>
       ))}
       <ToastContainer position="top-right" autoClose={5000} />

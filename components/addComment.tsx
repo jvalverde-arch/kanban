@@ -44,6 +44,10 @@ export const AddCommentPopup = ({ taskID, skus: initialSkus, onClose }: AddComme
           ) : (
             <p className="text-center text-gray-500">No SKUs available for this task.</p>
           )}
+           <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md">
+              Confirmar
+            </button>
+
         </div>
       </div>
     </div>

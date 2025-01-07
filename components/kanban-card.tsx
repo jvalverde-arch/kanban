@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, View } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { AddCommentPopup } from "@/components/addComment"
+import { ViewSKUTable } from "@/components/viewSKUtable"
 
 
 interface SKU {
@@ -32,6 +33,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
   const [allSkus, setAllSkus] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
   const [comment, setAddComment] = useState(false)
+  const [viewSKUList, setViewSKUList] = useState(false)
 
   const handleCheckboxChange = (id: string) => {
     const updatedSkus = skus.map(sku => sku.id === id ? { ...sku, selected: !sku.selected } : sku)
@@ -45,6 +47,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
     onSKUUpdate({ ...task, skus: newSkus })
     setAllSkus(!allSkus)
   }
+
 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -64,7 +67,17 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
     setAddComment(false)
   }
 
+    const viewSKULists = (taskId: string) => () => {
+    event.preventDefault()
+    setViewSKUList(true)
+  }
+
+
+
+
+
   return (
+    <div className='bg-red'>
     <div
       draggable
       onDragStart={onDragStart}
@@ -80,8 +93,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
             </div>
           </div>
           <div className="flex flex-row gap-1 align-middle">
-            <p className="text-xs">Select All SKUs</p>
-            <input type="checkbox" onChange={selectAllSkus} checked={allSkus} />
+            <p className="text-xs">Select Card</p>
           </div>
         </div>
         <Button
@@ -93,18 +105,13 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
           {showSkus ? 'Hide' : 'Show'} SKUs
           {showSkus ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
+     
+          
         {showSkus && (
           <div className="flex flex-col gap-2">
             {skus.length > 0 ? (
               skus.map(sku => (
                 <div key={sku.id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`sku-${sku.id}`}
-                    checked={sku.selected}
-                    onChange={() => handleCheckboxChange(sku.id)}
-                    className="rounded border-gray-300 text-primary focus:ring-primary"
-                  />
                     <div className="flex flex-row w-full justify-between items-center">
                     <label htmlFor={`sku-${sku.id}`} className="text-xs text-gray-700 flex-1">{sku.name}</label>
                     <span className="text-xs text-gray-700 whitespace-nowrap">12/12/24 al 12/12/24</span>
@@ -116,6 +123,9 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
             )}
           </div>
         )}
+
+  
+
       </div>
       {contextMenu && (
         <div
@@ -124,6 +134,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
           onClick={closeContextMenu}
         >
           <p className="text-sm hover:bg-gray-100 px-2 py-1 cursor-pointer" onClick={addComment(task.id)}>Agregar Comentario</p>
+          <p className="text-sm hover:bg-gray-100 px-2 py-1 cursor-pointer" onClick={viewSKULists(task.id)}>Ver SKUs</p>
         </div>
       )}
       {comment &&
@@ -135,7 +146,16 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
         </AddCommentPopup>
 
       }
+      {viewSKUList && 
+        <ViewSKUTable
+          taskID={task.id}
+          skus={task.skus}
+          onClose={() => setViewSKUList(false)}
+          >
+          </ViewSKUTable>
+      }
 
+    </div>
     </div>
   )
 }
