@@ -8,6 +8,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {LetterSentPopup} from "./popup";
 import { ViewSKUList } from "@/components/viewSKUList"
+import { SearchBar } from "./searchBar"
+
+
 
 interface SKU {
   id: string;
@@ -351,6 +354,14 @@ const updateTask = (updatedTask: Task) => {
 };
 
   return (
+    <div>
+      <div className="mb-5 mt-2">
+      <SearchBar 
+      tasks={tasks} 
+      onSearch={setATask}
+      setTasks={setTasks}
+       />
+      </div> 
     <div className="grid grid-cols-7 gap-[22em] overflow-x-auto">
       {columns.map((column) => (
         <KanbanColumn
@@ -396,6 +407,7 @@ const updateTask = (updatedTask: Task) => {
       {showPopup && (
         <LetterSentPopup onClose={() => setShowPopup(false)} />
       )}
+    </div>
     </div>
   );
 }
