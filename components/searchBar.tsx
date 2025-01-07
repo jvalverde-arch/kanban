@@ -59,55 +59,29 @@ export const SearchBar: React.FC<SearchBarProps> = ({ tasks, onSearch, setTasks 
     };
 
     return (
-        <div style={styles.container}>
+        <div className="flex items-center gap-2 p-2 rounded-full bg-gray-100 shadow-md">
             <input
                 type="text"
                 placeholder="Search Bookings..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                style={styles.input}
+                className="p-2 rounded-full border border-gray-300 outline-none w-full"
             />
             <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                style={styles.input}
+                className="p-2 rounded-full border border-gray-300 outline-none w-[9em]"
             />
             <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                style={styles.input}
+                className="p-2 rounded-full border border-gray-300 outline-none w-[9em]"
             />
-            <button onClick={handleSearch} style={styles.button}>
+            <button onClick={handleSearch} className="p-2 px-4 rounded-full border-none bg-blue-500 text-white cursor-pointer w-[9em]">
                 Search
             </button>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '10px',
-        borderRadius: '25px',
-        backgroundColor: '#f0f0f0',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    },
-    input: {
-        padding: '10px',
-        borderRadius: '20px',
-        border: '1px solid #ccc',
-        outline: 'none',
-    },
-    button: {
-        padding: '10px 20px',
-        borderRadius: '20px',
-        border: 'none',
-        backgroundColor: '#007bff',
-        color: '#fff',
-        cursor: 'pointer',
-    },
 };

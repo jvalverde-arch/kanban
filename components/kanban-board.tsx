@@ -65,7 +65,7 @@ const generateMockTasks = (type: string): Task[] => {
   })) */
 
 
-    return Array.from({length:3}, (_, i) => ({
+    return Array.from({length:10}, (_, i) => ({
       provider: providers[Math.floor(Math.random() * 3)],
       id: `${types[type as keyof typeof types]}-${i + 1000}`,
       title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
@@ -354,26 +354,23 @@ const updateTask = (updatedTask: Task) => {
 };
 
   return (
-    <div>
-      <div className="mb-5 mt-2">
-      <SearchBar 
-      tasks={tasks} 
-      onSearch={setATask}
-      setTasks={setTasks}
-       />
-      </div> 
     <div className="grid grid-cols-7 gap-[22em] overflow-x-auto">
-      {columns.map((column) => (
-        <KanbanColumn
-          count={count[column.id]}
-          key={column.id}
-          title={column.title}
-          onDragOver={handleDragOver} // Ahora está definido
-          onDrop={(e) => handleDrop(e, column.id)}
-          color={column.color}
-        >
+  {columns.map((column) => (
+    <KanbanColumn
+      count={count[column.id]}
+      key={column.id}
+      title={column.title}
+      onDragOver={handleDragOver}
+      onDrop={(e) => handleDrop(e, column.id)}
+      color={column.color}
+    >
+      {/* Proveedor: Finch Bay */}
+      {tasks.some(task => task.state === column.id && task.provider === "Finch Bay") && (
+        <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+
+          <h1>Finch Bay</h1>
           {tasks
-            .filter(task => task.state === column.id)
+            .filter(task => task.state === column.id && task.provider === "Finch Bay")
             .map((task) => (
               <motion.div
                 key={task.id}
@@ -389,25 +386,71 @@ const updateTask = (updatedTask: Task) => {
                 />
               </motion.div>
             ))}
-            {showPartialPopup &&
-                <ViewSKUList
-                  taskID={taskMoving?.id}
-                  skus={taskMoving?.skus}
-                  onClose={() => setShowPartialPopup(false)}
-                  isPartial={true}
-                  setTask={setATask}
-                  tasks={tasks}
-                  >
-                  </ViewSKUList>
-              }
-
-        </KanbanColumn>
-      ))}
-      <ToastContainer position="top-right" autoClose={5000} />
-      {showPopup && (
-        <LetterSentPopup onClose={() => setShowPopup(false)} />
+        </div>
       )}
-    </div>
-    </div>
+
+      {/* Proveedor: Mashpi */}
+      {tasks.some(task => task.state === column.id && task.provider === "Mashpi") && (
+        <div className="flex flex-col rounded-lg gap-2 bg-gray-100 p-4">
+          <h1>Mashpi</h1>
+          {tasks
+            .filter(task => task.state === column.id && task.provider === "Mashpi")
+            .map((task) => (
+              <motion.div
+                key={task.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <KanbanCard
+                  task={task}
+                  onDragStart={(e) => handleDragStart(e, task.id)}
+                  onSKUUpdate={updateTask}
+                />
+              </motion.div>
+            ))}
+        </div>
+      )}
+
+      {/* Proveedor: Casa Gangotena */}
+      {tasks.some(task => task.state === column.id && task.provider === "Casa Gangotena") && (
+        <div className="flex flex-col rounded-lg gap-2 bg-gray-100 p-4">
+          <h1>Casa Gangotena</h1>
+          {tasks
+            .filter(task => task.state === column.id && task.provider === "Casa Gangotena")
+            .map((task) => (
+              <motion.div
+                key={task.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <KanbanCard
+                  task={task}
+                  onDragStart={(e) => handleDragStart(e, task.id)}
+                  onSKUUpdate={updateTask}
+                />
+              </motion.div>
+            ))}
+        </div>
+      )}
+
+      {showPartialPopup &&
+        <ViewSKUList
+          taskID={taskMoving?.id}
+          skus={taskMoving?.skus}
+          onClose={() => setShowPartialPopup(false)}
+          isPartial={true}
+          setTask={setATask}
+          tasks={tasks}
+        />
+      }
+    </KanbanColumn>
+  ))}
+  <ToastContainer position="top-right" autoClose={5000} />
+  {showPopup && <LetterSentPopup onClose={() => setShowPopup(false)} />}
+</div>
   );
 }
