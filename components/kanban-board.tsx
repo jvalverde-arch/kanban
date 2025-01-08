@@ -518,7 +518,8 @@ const updateTask = (updatedTask: Task) => {
       {tasks.some(task => task.state === column.id && task.provider === "Mashpi") && (
         <div className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <div
-              className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
+              className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
+              draggable="true" onDragStart={(e) => handleDragStart(e, 'Mashpi', column.id)}>
             <h1 className="p-2 text-white">Mashpi</h1>
             <label
                 className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
@@ -552,7 +553,8 @@ const updateTask = (updatedTask: Task) => {
       {tasks.some(task => task.state === column.id && task.provider === "Casa Gangotena") && (
         <div className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <div
-              className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
+              className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
+              draggable="true" onDragStart={(e) => handleDragStart(e, 'Casa Gangotena', column.id)}>
             <h1 className="p-2 text-white">Casa Gangotena</h1>
             <label
                 className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
