@@ -83,6 +83,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
       onDragStart={onDragStart}
       onContextMenu={handleContextMenu}
       className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow"
+      onDoubleClick={viewSKULists(task.id)}
     >
       <div className="flex flex-col gap-2">
         <div className="flex flex-row justify-between">
@@ -135,7 +136,6 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={closeContextMenu}
         >
-          <p className="text-sm hover:bg-gray-100 px-2 py-1 cursor-pointer" onClick={addComment(task.id)}>Agregar Comentario</p>
           <p className="text-sm hover:bg-gray-100 px-2 py-1 cursor-pointer" onClick={viewSKULists(task.id)}>Ver SKUs</p>
         </div>
       )}
