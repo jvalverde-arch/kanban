@@ -15,9 +15,6 @@ export function KanbanColumn({
   onDragOver,
   onDrop
 }: KanbanColumnProps) {
-
-  console.log(count)
-  console.log(title)
   return (
     <div
       className={`min-w-[350px] rounded-lg p-4 ${color}`}

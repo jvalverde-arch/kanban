@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { color, motion } from "framer-motion"
+import { motion } from "framer-motion"
 import { KanbanColumn } from "./kanban-column"
 import { KanbanCard } from "./kanban-card"
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {LetterSentPopup} from "./popup";
 import { ViewSKUList } from "@/components/viewSKUList"
 import { SearchBar } from "./searchBar"
+import {ConfirmationPopUp} from "./confirmationPopUp"
 
 
 
@@ -29,15 +30,7 @@ interface Task {
   state: string;
 }
 
-const columns = [
-  { id: "new", title: "Solicitud Nueva Reserva", color: "bg-gray-100" },
-  { id: "pending", title: "Reserva pendiente" , color: "bg-orange-100" },
-  { id: "letter_sent", title: "Carta enviada" , color: "bg-green-100" },
-  { id: "total_reserved", title: "Reservado Total" , color: "bg-green-200" },
-  { id: "partial_reserved", title: "Reservado Parcial" , color: "bg-yellow-200" },
-  { id: "denied", title: "Negado" , color: "bg-red-200" },
-  { id: "total_with_passengers", title: "Reservado total con lista pasajeros" , color: "bg-blue-200" },
-]
+
 
 
 
@@ -50,7 +43,7 @@ const generateMockTasks = (type: string): Task[] => {
   }
 
   const providers = ["Finch Bay", "Casa Gangotena" , "Mashpi"];
-  
+
 /*   return Array.from({ length: 15 }, (_, i) => ({
     id: `${types[type as keyof typeof types]}-${i + 1000}`,
     title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
@@ -123,9 +116,59 @@ interface KanbanBoardProps {
 
 export function KanbanBoard({ type }: KanbanBoardProps) {
   const [tasks, setTasks] = useState<Task[]>(generateMockTasks(type));
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [showPartialPopup, setShowPartialPopup] = useState(false);
   const [taskMoving, setTaskMoving] = useState<Task | null>(null);
+
+
+  // State for column visibility
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
+    new: true,
+    pending: true,
+    letter_sent: true,
+    total_reserved: true,
+    partial_reserved: true,
+    denied: true,
+    total_with_passengers: true,
+  });
+
+
+const columns = type === "solicitud" ? [
+  { id: "new", title: "Solicitud Nueva Reserva", color: "bg-gray-100" },
+  { id: "pending", title: "Reserva pendiente", color: "bg-orange-100" },
+  { id: "letter_sent", title: "Carta enviada", color: "bg-green-100" },
+  { id: "total_reserved", title: "Reservado Total", color: "bg-green-200" },
+  { id: "partial_reserved", title: "Reservado Parcial", color: "bg-yellow-200" },
+  { id: "denied", title: "Negado", color: "bg-red-200" },
+  { id: "total_with_passengers", title: "Reservado total con lista pasajeros", color: "bg-blue-200" },
+] : type === "modificacion" ? [
+  { id: "new", title: "Modificación Solicitud Reserva", color: "bg-gray-100" },
+  { id: "pending", title: "Modificación pendiente", color: "bg-orange-100" },
+  { id: "letter_sent", title: "Carta modificación enviada", color: "bg-green-100" },
+  { id: "total_reserved", title: "Reservado Total", color: "bg-green-200" },
+  { id: "partial_reserved", title: "Reservado Parcial", color: "bg-yellow-200" },
+  { id: "denied", title: "Negado", color: "bg-red-200" },
+  { id: "total_with_passengers", title: "Modificado total con lista pasajeros", color: "bg-blue-200" },
+] : type === "cancelacion" ? [
+  { id: "new", title: "Solicitud Cancelación Reserva", color: "bg-gray-100" },
+  { id: "pending", title: "Cancelación pendiente", color: "bg-orange-100" },
+  { id: "letter_sent", title: "Carta cancelación enviada", color: "bg-orange-300" },
+  { id: "total_reserved", title: "Cancelado", color: "bg-red-200" },
+] : [];
+
+
+
+
+
+const toggleColumnVisibility = (columnId: string) => {
+    setVisibleColumns((prev) => ({
+        ...prev,
+        [columnId]: !prev[columnId],
+    }));
+};
+
 
 
 const setATask = (newTasksUpdated: Task[]) => {
@@ -175,10 +218,10 @@ const setATask = (newTasksUpdated: Task[]) => {
   };
 
   const handleDrop = (event: React.DragEvent, columnId: string) => {
-  
+
   const taskId = event.dataTransfer.getData("text/plain");
   const task = tasks.find(task => task.id === taskId);
-  
+
   if (!task) {
     console.error("Task not found");
     return;
@@ -234,13 +277,14 @@ const setATask = (newTasksUpdated: Task[]) => {
     return;
   }
 
+    setShowConfirmation(true);
 
 
 
 
 
   const selectedSKUs = task.skus.filter(sku => sku.selected);
-  
+
   if (selectedSKUs.length > 0) {
     // 1. Crear nueva tarea en la nueva columna solo con SKUs seleccionados
     const newTask = {
@@ -281,7 +325,7 @@ const setATask = (newTasksUpdated: Task[]) => {
       newTask
     ]);
     }
-    
+
     else if (newTask.state === "partial_reserved"){
       setShowPartialPopup(true);
           setTasks(tasks => [
@@ -291,7 +335,7 @@ const setATask = (newTasksUpdated: Task[]) => {
 
     ]);
 
-    
+
 
 
 
@@ -310,7 +354,7 @@ const setATask = (newTasksUpdated: Task[]) => {
     //update count
     setCount(countTasksByState(tasks));
 
-    
+
 
     }else{
       setTasks(tasks => [
@@ -348,7 +392,7 @@ const updateTask = (updatedTask: Task) => {
     }
     return task;
   });
-  
+
   // Actualizar el estado con el nuevo array
   setTasks(newTasks);
 };
@@ -356,14 +400,16 @@ const updateTask = (updatedTask: Task) => {
   return (
       <div>
       <div className="mb-5 mt-2">
-      <SearchBar 
-      tasks={tasks} 
-      onSearch={setATask}
-      setTasks={setTasks}
-       />
-      </div> 
+<SearchBar
+    tasks={tasks}
+    onSearch={setATask}
+    setTasks={setTasks}
+    columns={columns}
+    setView={toggleColumnVisibility}
+/>
+      </div>
     <div className="grid grid-cols-7 gap-[22em] overflow-x-auto">
-  {columns.map((column) => (
+      {columns.filter(column => visibleColumns[column.id]).map((column) => (
     <KanbanColumn
       count={count[column.id]}
       key={column.id}
@@ -479,6 +525,7 @@ const updateTask = (updatedTask: Task) => {
   ))}
   <ToastContainer position="top-right" autoClose={5000} />
   {showPopup && <LetterSentPopup onClose={() => setShowPopup(false)} />}
+      {showConfirmation && <ConfirmationPopUp setIsConfirmed={setIsConfirmed} onClose={() => setShowConfirmation(false)} />}
 </div>
 </div>
   );

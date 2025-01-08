@@ -93,20 +93,22 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
             </div>
           </div>
           <div className="flex flex-row gap-1 align-middle">
-            <p className="text-xs">Select Card</p>
+
+            <p className="text-xs">Select Booking</p>
+            <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600"/>
           </div>
         </div>
         <Button
-          variant="outline"
-          size="sm"
+            variant="outline"
+            size="sm"
           className="w-full justify-between"
           onClick={() => setShowSkus(!showSkus)}
         >
           {showSkus ? 'Hide' : 'Show'} SKUs
           {showSkus ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
-     
-          
+
+
         {showSkus && (
           <div className="flex flex-col gap-2">
             {skus.length > 0 ? (
@@ -124,7 +126,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
           </div>
         )}
 
-  
+
 
       </div>
       {contextMenu && (
@@ -146,7 +148,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
         </AddCommentPopup>
 
       }
-      {viewSKUList && 
+      {viewSKUList &&
         <ViewSKUTable
           taskID={task.id}
           skus={task.skus}
