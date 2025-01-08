@@ -201,6 +201,59 @@ const setATask = (newTasksUpdated: Task[]) => {
     setCount(countTasksByState(tasks));
   }, [tasks]);
 
+    const validations = (task, columnId) => {
+      if(columnId === task.state){
+        toast.error("No se puede mover a la misma columna")
+        console.log("No se puede mover a la misma columna")
+        return false;
+      }
+
+
+      if(task.state === "new" && columnId !== "pending"){
+        toast.error("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
+        console.log("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
+        return false;
+      }
+      if(task.state === "pending" && columnId !== "letter_sent"){
+        toast.error("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
+        console.log("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
+        return false;
+      }
+      //No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado
+      if(task.state === "letter_sent" && columnId !== "total_reserved" && columnId !== "partial_reserved" && columnId !== "denied"){
+        toast.error("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
+        console.log("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
+        return false;
+      }
+
+      if(task.state === "total_reserved" && columnId !== "total_with_passengers"){
+        toast.error("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
+        console.log("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
+        return false;
+      }
+
+      if(task.state === "partial_reserved" && columnId !== "total_with_passengers"){
+        toast.error("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
+        console.log("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
+        return false;
+      }
+
+      if(task.state == "total_with_passengers"){
+        toast.error("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
+        console.log("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
+        return false;
+      }
+
+      if(task.state == "denied"){
+        toast.error("No se puede mover una solicitud denegada a una columna distinta")
+        console.log("No se puede mover una solicitud denegada a una columna distinta")
+        return false;
+      }
+
+
+      return  true;
+    }
+
 
 
 
@@ -209,8 +262,9 @@ const setATask = (newTasksUpdated: Task[]) => {
     const newTasks = tasks.filter(task => task.id !== id);
     setTasks(newTasks);
   };
-  const handleDragStart = (event: React.DragEvent, taskId: string) => {
-    event.dataTransfer.setData('text/plain', taskId);
+
+  const handleDragStart = (event: React.DragEvent, taskId: string, startingColumn: string = "") => {
+    event.dataTransfer.setData('text/plain', JSON.stringify({ taskId, startingColumn }));
   };
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -219,12 +273,49 @@ const setATask = (newTasksUpdated: Task[]) => {
 
   const handleDrop = (event: React.DragEvent, columnId: string) => {
 
-  const taskId = event.dataTransfer.getData("text/plain");
+  const taskId =  JSON.parse(event.dataTransfer.getData('text/plain')).taskId;
+
+  const startingColumn = JSON.parse(event.dataTransfer.getData('text/plain')).startingColumn;
 
 if (taskId === "Finch Bay" || taskId === "Mashpi" || taskId === "Casa Gangotena") {
+
+  //show confirmation
+  setShowConfirmation(true);
+
   // get all tasks for that provider in the starting column
-  const tasksForProviderInColumn = tasks.filter(task => task.state === task.state && task.provider === taskId);
-  console.log("Tasks for provider in column", tasksForProviderInColumn.length);
+    const tasksToMove = tasks.filter(task => task.state === startingColumn && task.provider === taskId);
+    console.log(tasksToMove.length)
+
+  // move all tasks to the new column
+    tasksToMove.forEach(task => {
+
+        const canMove = validations(task, columnId);
+        if(!canMove){
+          return;
+        }
+
+        //check if the column is letter sent
+        if(columnId === "letter_sent"){
+          setShowPopup(true);
+        }
+
+        //check if the column is partial reserved
+        if(columnId === "partial_reserved"){
+          //show toasts error, cant move to partial reserved
+            toast.error("No se puede mover a reservado parcial un proveedor completo")
+          return;
+        }
+
+        //check if the column is total reserved with passengers
+        if(columnId === "total_with_passengers"){
+          setShowPopup(true);
+        }
+
+
+        setTasks(tasks => [
+        ...tasks.map(t => t.id === task.id ? { ...task, state: columnId } : t)
+        ]);
+    });
 }
 
 
@@ -236,54 +327,15 @@ if (taskId === "Finch Bay" || taskId === "Mashpi" || taskId === "Casa Gangotena"
   }
   setTaskMoving(task);
 
+    const canMove = validations(task, columnId);
 
-  if(columnId === task.state){
-    toast.error("No se puede mover a la misma columna")
-    console.log("No se puede mover a la misma columna")
-    return;
-  }
+    if(!canMove){
+      return;
+    }
 
 
-  if(task.state === "new" && columnId !== "pending"){
-    toast.error("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
-    console.log("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
-    return;
-  }
-  if(task.state === "pending" && columnId !== "letter_sent"){
-    toast.error("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
-    console.log("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
-    return;
-  }
-  //No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado
-  if(task.state === "letter_sent" && columnId !== "total_reserved" && columnId !== "partial_reserved" && columnId !== "denied"){
-    toast.error("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
-    console.log("No se puede mover una solicitud carta enviada a una columna que no sea reservado total, reservado parcial o denegado")
-    return;
-  }
 
-  if(task.state === "total_reserved" && columnId !== "total_with_passengers"){
-    toast.error("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
-    console.log("No se puede mover una solicitud reservado total a una columna que no sea reservado total con lista pasajeros")
-    return;
-  }
 
-  if(task.state === "partial_reserved" && columnId !== "total_with_passengers"){
-    toast.error("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
-    console.log("No se puede mover una solicitud reservado parcial a una columna que no sea reservado total con lista pasajeros")
-    return;
-  }
-
-  if(task.state == "total_with_passengers"){
-    toast.error("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
-    console.log("No se puede mover una solicitud reservado total con lista pasajeros a una columna distinta")
-    return;
-  }
-
-  if(task.state == "denied"){
-    toast.error("No se puede mover una solicitud denegada a una columna distinta")
-    console.log("No se puede mover una solicitud denegada a una columna distinta")
-    return;
-  }
 
     setShowConfirmation(true);
 
@@ -432,7 +484,7 @@ const updateTask = (updatedTask: Task) => {
               className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <div
                 className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
-                draggable="true" onDragStart={(e) => handleDragStart(e, 'Finch Bay')}>
+                draggable="true" onDragStart={(e) => handleDragStart(e, 'Finch Bay', column.id)}>
               <h1 className="p-2 text-white">Finch Bay</h1>
               <label
                   className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
