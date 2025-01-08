@@ -220,6 +220,14 @@ const setATask = (newTasksUpdated: Task[]) => {
   const handleDrop = (event: React.DragEvent, columnId: string) => {
 
   const taskId = event.dataTransfer.getData("text/plain");
+
+if (taskId === "Finch Bay" || taskId === "Mashpi" || taskId === "Casa Gangotena") {
+  // get all tasks for that provider in the starting column
+  const tasksForProviderInColumn = tasks.filter(task => task.state === task.state && task.provider === taskId);
+  console.log("Tasks for provider in column", tasksForProviderInColumn.length);
+}
+
+
   const task = tasks.find(task => task.id === taskId);
 
   if (!task) {
@@ -420,13 +428,18 @@ const updateTask = (updatedTask: Task) => {
     >
       {/* Proveedor: Finch Bay */}
       {tasks.some(task => task.state === column.id && task.provider === "Finch Bay") && (
-        <div className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <div  className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
-          <h1 className="p-2 text-white">Finch Bay</h1>
-          <button className="p-1 m-1 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
-            Operar todo
-          </button>
-          </div>
+          <div
+              className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <div
+                className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
+                draggable="true" onDragStart={(e) => handleDragStart(e, 'Finch Bay')}>
+              <h1 className="p-2 text-white">Finch Bay</h1>
+              <label
+                  className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
+                <input type="checkbox" className="mr-2"/>
+                Operar todo
+              </label>
+            </div>
           <div className="flex flex-col gap-2 p-2"></div>
           {tasks
             .filter(task => task.state === column.id && task.provider === "Finch Bay")
@@ -452,22 +465,25 @@ const updateTask = (updatedTask: Task) => {
       {/* Proveedor: Mashpi */}
       {tasks.some(task => task.state === column.id && task.provider === "Mashpi") && (
         <div className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <div  className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
-          <h1 className="p-2 text-white">Mashpi</h1>
-          <button className="p-1 m-1 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
-            Operar todo
-          </button>
+          <div
+              className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
+            <h1 className="p-2 text-white">Mashpi</h1>
+            <label
+                className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
+              <input type="checkbox" className="mr-2"/>
+              Operar todo
+            </label>
           </div>
           <div className="flex flex-col gap-2 p-2"></div>
           {tasks
-            .filter(task => task.state === column.id && task.provider === "Mashpi")
-            .map((task) => (
-              <motion.div
-                key={task.id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              .filter(task => task.state === column.id && task.provider === "Mashpi")
+              .map((task) => (
+                  <motion.div
+                      key={task.id}
+                      layout
+                      initial={{opacity: 0}}
+                      animate={{opacity: 1}}
+                      exit={{ opacity: 0 }}
               >
                 <KanbanCard
                   task={task}
@@ -483,22 +499,25 @@ const updateTask = (updatedTask: Task) => {
       {/* Proveedor: Casa Gangotena */}
       {tasks.some(task => task.state === column.id && task.provider === "Casa Gangotena") && (
         <div className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <div  className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
-          <h1 className="p-2 text-white">Casa Gangotena</h1>
-          <button className="p-1 m-1 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
-            Operar todo
-          </button>
+          <div
+              className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between">
+            <h1 className="p-2 text-white">Casa Gangotena</h1>
+            <label
+                className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
+              <input type="checkbox" className="mr-2"/>
+              Operar todo
+            </label>
           </div>
           <div className="flex flex-col gap-2 p-2"></div>
           {tasks
-            .filter(task => task.state === column.id && task.provider === "Casa Gangotena")
-            .map((task) => (
-              <motion.div
-                key={task.id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              .filter(task => task.state === column.id && task.provider === "Casa Gangotena")
+              .map((task) => (
+                  <motion.div
+                      key={task.id}
+                      layout
+                      initial={{opacity: 0}}
+                      animate={{opacity: 1}}
+                      exit={{ opacity: 0 }}
               >
                 <KanbanCard
                   task={task}

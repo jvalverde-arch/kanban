@@ -84,6 +84,7 @@ export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) 
       onContextMenu={handleContextMenu}
       className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow"
       onDoubleClick={viewSKULists(task.id)}
+      onClick={closeContextMenu}
     >
       <div className="flex flex-col gap-2">
         <div className="flex flex-row justify-between">
