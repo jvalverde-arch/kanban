@@ -117,7 +117,9 @@ export function KanbanBoard({type}: KanbanBoardProps) {
     const [showPopup, setShowPopup] = useState(false);
     const [showPartialPopup, setShowPartialPopup] = useState(false);
     const [taskMoving, setTaskMoving] = useState<Task | null>(null);
-
+    const [showFinchBayCards, setShowFinchBayCards] = useState(false);
+    const [showMashpiCards, setShowMashpiCards] = useState(false);
+    const [showCasaGangotenaCards, setShowCasaGangotenaCards] = useState(false);
 
     // State for column visibility
     const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
@@ -150,10 +152,10 @@ export function KanbanBoard({type}: KanbanBoardProps) {
         {id: "pending", title: "Cancelación pendiente", color: "bg-orange-100"},
         {id: "letter_sent", title: "Carta cancelación enviada", color: "bg-orange-300"},
         {id: "total_reserved", title: "Cancelado", color: "bg-red-200"},
-    ] :type === "roomlist" ? [
+    ] : type === "roomlist" ? [
         {id: "new", title: "Solicitud Envio Room list", color: "bg-gray-100"},
         {id: "letter_sent", title: "Carta Room List Enviada", color: "bg-green-100"},
-        ]:[];
+    ] : [];
 
 
     const toggleColumnVisibility = (columnId: string) => {
@@ -204,7 +206,13 @@ export function KanbanBoard({type}: KanbanBoardProps) {
             console.log("No se puede mover una nueva solicitud a una columna que no sea reserva pendiente")
             return false;
         }
-        if (task.state === "pending" && columnId !== "letter_sent") {
+        if (task.state === "pending" && columnId == "new" ) {
+            setShowConfirmation(true);
+            toast.success("Estado existoso")
+            return true
+        }
+
+        if (task.state === "pending" && columnId !== "letter_sent" ) {
             toast.error("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
             console.log("No se puede mover una solicitud pendiente a una columna que no sea carta enviada")
             return false;
@@ -271,12 +279,10 @@ export function KanbanBoard({type}: KanbanBoardProps) {
         console.log("Task ID", taskId)
 
 
-
-
         if (taskId === "Finch Bay" || taskId === "Mashpi" || taskId === "Casa Gangotena") {
             // get all tasks for that provider in the starting column
             const tasksToMove = tasks.filter(task => task.state === startingColumn && task.provider === taskId);
-            console.log("Leng",tasksToMove.length)
+            console.log("Leng", tasksToMove.length)
 
             // move all tasks to the new column
             tasksToMove.forEach(task => {
@@ -479,75 +485,98 @@ export function KanbanBoard({type}: KanbanBoardProps) {
                         onDrop={(e) => handleDrop(e, column.id)}
                         color={column.color}
                     >
-                        {/* Proveedor: Finch Bay */}
+                        {/* Proveedor: Finch Bay */}{/* Proveedor: Finch Bay */}
                         {tasks.some(task => task.state === column.id && task.provider === "Finch Bay") && (
                             <div
                                 className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                                 <div
-                                    className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
+                                    className="flex flex-row  justify-between bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 items-center"
                                     draggable="true" onDragStart={(e) => handleDragStart(e, 'Finch Bay', column.id)}>
+                                    <div className="flex flex-row items-center">
+                                    <button
+                                        className="p-2 text-white bg-gray-700 rounded"
+                                        onClick={() => setShowFinchBayCards(!showFinchBayCards)}
+                                    >
+                                        {showFinchBayCards ? '-' : '+'}
+                                    </button>
                                     <h1 className="p-2 text-white">Finch Bay</h1>
+                                    </div>
                                     <label
-                                        className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
+                                        className="flex items-center justify-end p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
                                         <input type="checkbox" className="mr-2"/>
                                         Operar todo
                                     </label>
+
+
                                 </div>
-                                <div className="flex flex-col gap-2 p-2"></div>
-                                {tasks
-                                    .filter(task => task.state === column.id && task.provider === "Finch Bay")
-                                    .map((task) => (
-                                        <motion.div
-                                            key={task.id}
-                                            layout
-                                            initial={{opacity: 0}}
-                                            animate={{opacity: 1}}
-                                            exit={{opacity: 0}}
-                                        >
-                                            <KanbanCard
-                                                task={task}
-                                                onDragStart={(e) => handleDragStart(e, task.id)}
-                                                onSKUUpdate={updateTask}
-                                            />
-                                            <div className="flex flex-col gap-2 p-2"></div>
-                                        </motion.div>
-                                    ))}
+                                {showFinchBayCards && (
+                                    <div className="flex flex-col gap-2 p-2">
+                                        {tasks
+                                            .filter(task => task.state === column.id && task.provider === "Finch Bay")
+                                            .map((task) => (
+                                                <motion.div
+                                                    key={task.id}
+                                                    layout
+                                                    initial={{opacity: 0}}
+                                                    animate={{opacity: 1}}
+                                                    exit={{opacity: 0}}
+                                                >
+                                                    <KanbanCard
+                                                        task={task}
+                                                        onDragStart={(e) => handleDragStart(e, task.id)}
+                                                        onSKUUpdate={updateTask}
+                                                    />
+                                                    <div className="flex flex-col gap-2 p-2"></div>
+                                                </motion.div>
+                                            ))}
+
+                                    </div>
+                                )}
                             </div>
                         )}
-
                         {/* Proveedor: Mashpi */}
                         {tasks.some(task => task.state === column.id && task.provider === "Mashpi") && (
                             <div
                                 className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                                 <div
-                                    className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
+                                    className="flex flex-row justify-between bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 items-center"
                                     draggable="true" onDragStart={(e) => handleDragStart(e, 'Mashpi', column.id)}>
-                                    <h1 className="p-2 text-white">Mashpi</h1>
+                                    <div className="flex flex-row items-center">
+                                        <button
+                                            className="p-2 text-white bg-gray-700 rounded"
+                                            onClick={() => setShowMashpiCards(!showMashpiCards)}
+                                        >
+                                            {showMashpiCards ? '-' : '+'}
+                                        </button>
+                                        <h1 className="p-2 text-white">Mashpi</h1>
+                                    </div>
                                     <label
-                                        className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
+                                        className="flex items-center justify-end p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
                                         <input type="checkbox" className="mr-2"/>
                                         Operar todo
                                     </label>
                                 </div>
-                                <div className="flex flex-col gap-2 p-2"></div>
-                                {tasks
-                                    .filter(task => task.state === column.id && task.provider === "Mashpi")
-                                    .map((task) => (
-                                        <motion.div
-                                            key={task.id}
-                                            layout
-                                            initial={{opacity: 0}}
-                                            animate={{opacity: 1}}
-                                            exit={{opacity: 0}}
-                                        >
-                                            <KanbanCard
-                                                task={task}
-                                                onDragStart={(e) => handleDragStart(e, task.id)}
-                                                onSKUUpdate={updateTask}
-                                            />
-                                            <div className="flex flex-col gap-2 p-2"></div>
-                                        </motion.div>
-                                    ))}
+                                {showMashpiCards && (
+                                    <div className="flex flex-col gap-2 p-2">
+                                        {tasks
+                                            .filter(task => task.state === column.id && task.provider === "Mashpi")
+                                            .map((task) => (
+                                                <motion.div
+                                                    key={task.id}
+                                                    layout
+                                                    initial={{opacity: 0}}
+                                                    animate={{opacity: 1}}
+                                                    exit={{opacity: 0}}
+                                                >
+                                                    <KanbanCard
+                                                        task={task}
+                                                        onDragStart={(e) => handleDragStart(e, task.id)}
+                                                        onSKUUpdate={updateTask}
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -556,35 +585,44 @@ export function KanbanBoard({type}: KanbanBoardProps) {
                             <div
                                 className="max-w-sm p-2 bg-slate-50 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                                 <div
-                                    className="flex flex-row bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 justify-between"
-                                    draggable="true"
-                                    onDragStart={(e) => handleDragStart(e, 'Casa Gangotena', column.id)}>
-                                    <h1 className="p-2 text-white">Casa Gangotena</h1>
+                                    className="flex flex-row justify-between bg-slate-500 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 items-center"
+                                    draggable="true" onDragStart={(e) => handleDragStart(e, 'Casa Gangotena', column.id)}>
+                                    <div className="flex flex-row items-center">
+                                        <button
+                                            className="p-2 text-white bg-gray-700 rounded"
+                                            onClick={() => setShowCasaGangotenaCards(!showCasaGangotenaCards)}
+                                        >
+                                            {showCasaGangotenaCards ? '-' : '+'}
+                                        </button>
+                                        <h1 className="p-2 text-white">Casa Gangotena</h1>
+                                    </div>
                                     <label
-                                        className="flex items-center p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
+                                        className="flex items-center justify-end p-1 m-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400 text-xs">
                                         <input type="checkbox" className="mr-2"/>
                                         Operar todo
                                     </label>
                                 </div>
-                                <div className="flex flex-col gap-2 p-2"></div>
-                                {tasks
-                                    .filter(task => task.state === column.id && task.provider === "Casa Gangotena")
-                                    .map((task) => (
-                                        <motion.div
-                                            key={task.id}
-                                            layout
-                                            initial={{opacity: 0}}
-                                            animate={{opacity: 1}}
-                                            exit={{opacity: 0}}
-                                        >
-                                            <KanbanCard
-                                                task={task}
-                                                onDragStart={(e) => handleDragStart(e, task.id)}
-                                                onSKUUpdate={updateTask}
-                                            />
-                                            <div className="flex flex-col gap-2 p-2"></div>
-                                        </motion.div>
-                                    ))}
+                                {showCasaGangotenaCards && (
+                                    <div className="flex flex-col gap-2 p-2">
+                                        {tasks
+                                            .filter(task => task.state === column.id && task.provider === "Casa Gangotena")
+                                            .map((task) => (
+                                                <motion.div
+                                                    key={task.id}
+                                                    layout
+                                                    initial={{opacity: 0}}
+                                                    animate={{opacity: 1}}
+                                                    exit={{opacity: 0}}
+                                                >
+                                                    <KanbanCard
+                                                        task={task}
+                                                        onDragStart={(e) => handleDragStart(e, task.id)}
+                                                        onSKUUpdate={updateTask}
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 

@@ -5,14 +5,17 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { KanbanBoard } from "@/components/kanban-board"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { List } from "lucide-react"
-
+import { HeaderXTS} from "@/components/headerXTS"
 
 
 export default function HotelReservationsPage() {
   const [activeTab, setActiveTab] = useState("solicitud")
 
   return (
+
+      <div>
+        <HeaderXTS  />
+
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
 
       <Card className="border-l-4 border-l-[#002856]">
@@ -80,6 +83,7 @@ export default function HotelReservationsPage() {
         </CardContent>
       </Card>
     </div>
+      </div>
   )
 }
 
