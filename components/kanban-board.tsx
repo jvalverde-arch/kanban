@@ -57,7 +57,7 @@ const generateMockTasks = (type: string): Task[] => {
     return Array.from({length: 10}, (_, i) => ({
         provider: providers[Math.floor(Math.random() * 3)],
         id: `${types[type as keyof typeof types]}-${i + 1000}`,
-        title: `Reserva ${types[type as keyof typeof types]} #${i + 1}`,
+        title: `OPP - 4455 ${types[type as keyof typeof types]} #${i + 1}`,
         assignee: ["Juan Pérez", "María García", "Carlos López"][Math.floor(Math.random() * 3)],
         state: "new",
         skus: Array.from({length: 10}, (_, j) => ({
@@ -138,7 +138,6 @@ export function KanbanBoard({type}: KanbanBoardProps) {
         {id: "total_reserved", title: "Reservado Total", color: "bg-green-200"},
         {id: "partial_reserved", title: "Reservado Parcial", color: "bg-yellow-200"},
         {id: "denied", title: "Negado", color: "bg-red-200"},
-        {id: "total_with_passengers", title: "Reservado total con lista pasajeros", color: "bg-blue-200"},
     ] : type === "modificacion" ? [
         {id: "new", title: "Modificación Solicitud Reserva", color: "bg-gray-100"},
         {id: "pending", title: "Modificación pendiente", color: "bg-orange-100"},
@@ -146,13 +145,15 @@ export function KanbanBoard({type}: KanbanBoardProps) {
         {id: "total_reserved", title: "Reservado Total", color: "bg-green-200"},
         {id: "partial_reserved", title: "Reservado Parcial", color: "bg-yellow-200"},
         {id: "denied", title: "Negado", color: "bg-red-200"},
-        {id: "total_with_passengers", title: "Modificado total con lista pasajeros", color: "bg-blue-200"},
     ] : type === "cancelacion" ? [
         {id: "new", title: "Solicitud Cancelación Reserva", color: "bg-gray-100"},
         {id: "pending", title: "Cancelación pendiente", color: "bg-orange-100"},
         {id: "letter_sent", title: "Carta cancelación enviada", color: "bg-orange-300"},
         {id: "total_reserved", title: "Cancelado", color: "bg-red-200"},
-    ] : [];
+    ] :type === "roomlist" ? [
+        {id: "new", title: "Solicitud Envio Room list", color: "bg-gray-100"},
+        {id: "letter_sent", title: "Carta Room List Enviada", color: "bg-green-100"},
+        ]:[];
 
 
     const toggleColumnVisibility = (columnId: string) => {
@@ -263,13 +264,34 @@ export function KanbanBoard({type}: KanbanBoardProps) {
 
         const startingColumn = JSON.parse(event.dataTransfer.getData('text/plain')).startingColumn;
 
+
+        console.log("Starting Column", startingColumn)
+        console.log("Column ID", columnId)
+        console.log("Type", type)
+        console.log("Task ID", taskId)
+
+
+
+
         if (taskId === "Finch Bay" || taskId === "Mashpi" || taskId === "Casa Gangotena") {
             // get all tasks for that provider in the starting column
             const tasksToMove = tasks.filter(task => task.state === startingColumn && task.provider === taskId);
-            console.log(tasksToMove.length)
+            console.log("Leng",tasksToMove.length)
 
             // move all tasks to the new column
             tasksToMove.forEach(task => {
+
+
+                if (columnId === "letter_sent" && type === "roomlist") {
+                    console.log("Roomlist")
+                    //move to letter sent
+                    setShowPopup(true);
+
+                    setTasks(tasks => [
+                        ...tasks.map(t => t.id === task.id ? {...task, state: columnId} : t)
+                    ]);
+                    return;
+                }
 
                 const canMove = validations(task, columnId);
                 if (!canMove) {
@@ -298,6 +320,16 @@ export function KanbanBoard({type}: KanbanBoardProps) {
                     ...tasks.map(t => t.id === task.id ? {...task, state: columnId} : t)
                 ]);
             });
+        }
+
+        if (columnId === "letter_sent" && type === "roomlist") {
+            //move to letter sent
+            setShowPopup(true);
+
+            setTasks(tasks => [
+                ...tasks.map(t => t.id === taskId ? {...t, state: columnId} : t)
+            ]);
+            return;
         }
 
 

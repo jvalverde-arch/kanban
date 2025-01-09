@@ -1,164 +1,183 @@
-import React, { useState } from 'react'
-import { ChevronDown, ChevronUp, View } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { AddCommentPopup } from "@/components/addComment"
-import { ViewSKUTable } from "@/components/viewSKUtable"
+import React, {useState} from 'react'
+import {ChevronDown, ChevronUp, View} from 'lucide-react'
+import {Button} from "@/components/ui/button"
+import {AddCommentPopup} from "@/components/addComment"
+import {ViewSKUTable} from "@/components/viewSKUtable"
 
 
 interface SKU {
-  id: string
-  name: string
-  selected: boolean
-  comment?: string
+    id: string
+    name: string
+    selected: boolean
+    comment?: string
+    description?: string
 }
 
 interface Task {
-  provider: string
-  id: string
-  title: string
-  assignee: string
-  priority?: "low" | "medium" | "high"
-  skus: SKU[]
+    provider: string
+    id: string
+    title: string
+    assignee: string
+    priority?: "low" | "medium" | "high"
+    skus: SKU[]
 }
 
 interface KanbanCardProps {
-  task: Task
-  onDragStart: (event: React.DragEvent) => void
-  onSKUUpdate: (task: Task) => void
+    task: Task
+    onDragStart: (event: React.DragEvent) => void
+    onSKUUpdate: (task: Task) => void
 }
 
-export function KanbanCard({ task, onDragStart, onSKUUpdate }: KanbanCardProps) {
-  const [skus, setSkus] = useState<SKU[]>(task.skus || [])
-  const [showSkus, setShowSkus] = useState(false)
-  const [allSkus, setAllSkus] = useState(false)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
-  const [comment, setAddComment] = useState(false)
-  const [viewSKUList, setViewSKUList] = useState(false)
-
-  const handleCheckboxChange = (id: string) => {
-    const updatedSkus = skus.map(sku => sku.id === id ? { ...sku, selected: !sku.selected } : sku)
-    setSkus(updatedSkus)
-    onSKUUpdate({ ...task, skus: updatedSkus })
-  }
-
-  const selectAllSkus = () => {
-    const newSkus = skus.map(sku => ({ ...sku, selected: !allSkus }))
-    setSkus(newSkus)
-    onSKUUpdate({ ...task, skus: newSkus })
-    setAllSkus(!allSkus)
-  }
+export function KanbanCard({task, onDragStart, onSKUUpdate}: KanbanCardProps) {
+    const [skus, setSkus] = useState<SKU[]>(task.skus || [])
+    const [showSkus, setShowSkus] = useState(false)
+    const [allSkus, setAllSkus] = useState(false)
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+    const [comment, setAddComment] = useState(false)
+    const [viewSKUList, setViewSKUList] = useState(false)
 
 
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault()
-    setContextMenu({ x: event.clientX, y: event.clientY })
-  }
+    const descriptions = [
+        "Finch Bay Hotel - Finch Bay Rooms - Single",
+        "Finch Bay Hotel - Finch Bay Rooms - Double",
+        "Finch Bay Hotel - Finch Bay Rooms - Suite"
+    ];
 
-  const closeContextMenu = () => {
-    setContextMenu(null)
-  }
+    //add descriptions to skus when created
+    if (skus.length > 0) {
+        skus.forEach((sku) => {
+            const randomIndex = Math.floor(Math.random() * descriptions.length);
+            sku.description = descriptions[randomIndex];
+        });
+    }
 
-  const addComment = (taskId: string) => () => {
-    event.preventDefault()
-    setAddComment(true)
-  }
 
-  const closeAddComment = () => {
-    setAddComment(false)
-  }
+    const handleCheckboxChange = (id: string) => {
+        const updatedSkus = skus.map(sku => sku.id === id ? {...sku, selected: !sku.selected} : sku)
+        setSkus(updatedSkus)
+        onSKUUpdate({...task, skus: updatedSkus})
+    }
+
+    const selectAllSkus = () => {
+        const newSkus = skus.map(sku => ({...sku, selected: !allSkus}))
+        setSkus(newSkus)
+        onSKUUpdate({...task, skus: newSkus})
+        setAllSkus(!allSkus)
+    }
+
+
+    const handleContextMenu = (event: React.MouseEvent) => {
+        event.preventDefault()
+        setContextMenu({x: event.clientX, y: event.clientY})
+    }
+
+    const closeContextMenu = () => {
+        setContextMenu(null)
+    }
+
+    const addComment = (taskId: string) => () => {
+        event.preventDefault()
+        setAddComment(true)
+    }
+
+    const closeAddComment = () => {
+        setAddComment(false)
+    }
 
     const viewSKULists = (taskId: string) => () => {
-    event.preventDefault()
-    setViewSKUList(true)
-  }
+        event.preventDefault()
+        setViewSKUList(true)
+    }
 
 
+    return (
+        <div className='bg-red'>
+            <div
+                draggable
+                onDragStart={onDragStart}
+                onContextMenu={handleContextMenu}
+                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow"
+                onDoubleClick={viewSKULists(task.id)}
+                onClick={closeContextMenu}
+            >
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-row justify-between">
+                        <div className="flex flex-col gap-2">
+                            <div>
+                                <h4 className="text-sm text-black font-bold">{task.title}</h4>
+                                <h6 className="font-medium text-sm text-gray-900">{task.provider}</h6>
+                            </div>
+                        </div>
+                        <div className="flex flex-row gap-1 align-middle">
 
-
-
-  return (
-    <div className='bg-red'>
-    <div
-      draggable
-      onDragStart={onDragStart}
-      onContextMenu={handleContextMenu}
-      className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow"
-      onDoubleClick={viewSKULists(task.id)}
-      onClick={closeContextMenu}
-    >
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-col gap-2">
-            <div>
-              <h4 className="text-sm text-black font-bold">{task.title}</h4>
-              <h6 className="font-medium text-sm text-gray-900">{task.provider}</h6>
-            </div>
-          </div>
-          <div className="flex flex-row gap-1 align-middle">
-
-            <p className="text-xs">Select Booking</p>
-            <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600"/>
-          </div>
-        </div>
-        <Button
-            variant="outline"
-            size="sm"
-          className="w-full justify-between"
-          onClick={() => setShowSkus(!showSkus)}
-        >
-          {showSkus ? 'Hide' : 'Show'} SKUs
-          {showSkus ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </Button>
-
-
-        {showSkus && (
-          <div className="flex flex-col gap-2">
-            {skus.length > 0 ? (
-              skus.map(sku => (
-                <div key={sku.id} className="flex items-center gap-2">
-                    <div className="flex flex-row w-full justify-between items-center">
-                    <label htmlFor={`sku-${sku.id}`} className="text-xs text-gray-700 flex-1">{sku.name}</label>
-                    <span className="text-xs text-gray-700 whitespace-nowrap">12/12/24 al 12/12/24</span>
+                            <p className="text-xs">Select Booking</p>
+                            <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600"/>
+                        </div>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-between"
+                        onClick={() => setShowSkus(!showSkus)}
+                    >
+                        {showSkus ? 'Hide' : 'Show'} SKUs
+                        {showSkus ? <ChevronUp className="h-4 w-4"/> : <ChevronDown className="h-4 w-4"/>}
+                    </Button>
+
+                    <hr className="border-t border-gray-300"/>
+                    {showSkus && (
+                        <div className="flex flex-col gap-2">
+                            {skus.length > 0 ? (
+                                skus.map(sku => (
+                                    <div key={sku.id} className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex flex-row w-full justify-between items-center">
+                                                <label htmlFor={`sku-${sku.id}`}
+                                                       className="text-xs text-gray-700 flex-1">{sku.description}</label>
+                                                <div className="border-l border-gray-300 h-4 m-1"></div>
+                                                <span className="text-xs text-gray-700 whitespace-nowrap">12/12/24 al 12/12/24</span>
+                                            </div>
+                                        </div>
+                                        <hr className="border-t border-gray-300"/>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500">No SKUs available</p>
+                            )}
+                        </div>
+                    )}
+
+
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">No SKUs available</p>
-            )}
-          </div>
-        )}
+                {contextMenu && (
+                    <div
+                        className="absolute bg-white border shadow-lg p-2 rounded-md z-50"
+                        style={{top: contextMenu.y, left: contextMenu.x}}
+                        onClick={closeContextMenu}
+                    >
+                        <p className="text-sm hover:bg-gray-100 px-2 py-1 cursor-pointer"
+                           onClick={viewSKULists(task.id)}>Ver SKUs</p>
+                    </div>
+                )}
+                {comment &&
+                    <AddCommentPopup
+                        taskID={task.id}
+                        skus={task.skus}
+                        onClose={() => setAddComment(false)}
+                    >
+                    </AddCommentPopup>
 
+                }
+                {viewSKUList &&
+                    <ViewSKUTable
+                        taskID={task.id}
+                        skus={task.skus}
+                        onClose={() => setViewSKUList(false)}
+                    >
+                    </ViewSKUTable>
+                }
 
-
-      </div>
-      {contextMenu && (
-        <div
-          className="absolute bg-white border shadow-lg p-2 rounded-md z-50"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-          onClick={closeContextMenu}
-        >
-          <p className="text-sm hover:bg-gray-100 px-2 py-1 cursor-pointer" onClick={viewSKULists(task.id)}>Ver SKUs</p>
+            </div>
         </div>
-      )}
-      {comment &&
-        <AddCommentPopup
-          taskID={task.id}
-          skus={task.skus}
-          onClose={() => setAddComment(false)}
-        >
-        </AddCommentPopup>
-
-      }
-      {viewSKUList &&
-        <ViewSKUTable
-          taskID={task.id}
-          skus={task.skus}
-          onClose={() => setViewSKUList(false)}
-          >
-          </ViewSKUTable>
-      }
-
-    </div>
-    </div>
-  )
+    )
 }

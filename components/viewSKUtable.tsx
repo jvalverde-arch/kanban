@@ -75,15 +75,17 @@ export const ViewSKUTable = ({taskID, skus: initialSkus, onClose}: AddCommentPop
             <div className="bg-white p-6 rounded-lg shadow-lg w-[90em] h-[50em] flex flex-col">
                 <div className="flex flex-row justify-between items-center gap-2">
                     <h2 className="text-xl font-bold mb-4">SKUs for Task: {taskID}</h2>
-<div className="flex justify-between">
-    <button className="bg-blue-400 hover:bg-blue-100 text-white px-2 py-1 rounded-md" onClick={() => setShowColorInformation(true)}>
-        information
-    </button>
-    <div className="w-5 h-5"></div>
-    <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md" onClick={onClose}>
-        X
-    </button>
-</div>
+                    <div className="flex justify-between">
+                        <button className="bg-blue-400 hover:bg-blue-100 text-white px-2 py-1 rounded-md"
+                                onClick={() => setShowColorInformation(true)}>
+                            information
+                        </button>
+                        <div className="w-5 h-5"></div>
+                        <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md"
+                                onClick={onClose}>
+                            X
+                        </button>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-6 bg-black mt-2 mb-4">
                     <div className="flex flex-col min-h-[0.1em] gap-2"></div>
@@ -99,8 +101,11 @@ export const ViewSKUTable = ({taskID, skus: initialSkus, onClose}: AddCommentPop
                             <th className="py-2 bg-blue-400 border-l border-r"></th>
                             <th className="py-2 bg-blue-500  border text-white" colSpan={3}>Pasajeros</th>
                             <th className="py-2 bg-blue-400 border-l border-r"></th>
-                            <th className="py-2 bg-blue-500 border-l border-r text-white border" colSpan={3}>Comentarios</th>
-                            <th className="py-2 bg-blue-500 border-l border-r  text-white border" colSpan={2}>Costos</th>
+                            <th className="py-2 bg-blue-500 border-l border-r text-white border"
+                                colSpan={3}>Comentarios
+                            </th>
+                            <th className="py-2 bg-blue-500 border-l border-r  text-white border" colSpan={2}>Costos
+                            </th>
                         </tr>
                         <tr>
                             <th className="py-2 bg-blue-400 border-l border-r text-white ">SKU ID</th>
@@ -148,13 +153,13 @@ export const ViewSKUTable = ({taskID, skus: initialSkus, onClose}: AddCommentPop
                                         <div className="w-2"></div>
                                     </div>
                                     <div className="flex-row justify-center items-center w-40">
-<button
-    onClick={(e) => {
-        setShowSaved(true);
-    }}
-    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md">
-    ✓
-</button>
+                                        <button
+                                            onClick={(e) => {
+                                                setShowSaved(true);
+                                            }}
+                                            className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md">
+                                            ✓
+                                        </button>
                                     </div>
                                 </td>
                                 <td className="border px-4 py-2 text-center text-xs">Aqui comentarios Operativo</td>
@@ -180,19 +185,19 @@ export const ViewSKUTable = ({taskID, skus: initialSkus, onClose}: AddCommentPop
                                             }} // Establece altura inicial y mínima
                                         />
                                     </div>
-                                        <button
-                                            className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md mt-1"
-                                            onClick={(e) => {
-                                                setShowSaved(true);
+                                    <button
+                                        className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md mt-1"
+                                        onClick={(e) => {
+                                            setShowSaved(true);
 
-                                                // Set the tr bg color to green
-                                                const tr = (e.target as HTMLElement).closest('tr');
-                                                if (tr) {
-                                                    tr.style.backgroundColor = 'rgb(255 237 213 / var(--tw-bg-opacity, 1))';
-                                                }
-                                            }}>
-                                            ✓
-                                        </button>
+                                            // Set the td bg color to green
+                                            const td = (e.target as HTMLElement).closest('td');
+                                            if (td) {
+                                                td.style.backgroundColor = 'rgb(255 237 213 / var(--tw-bg-opacity, 1))';
+                                            }
+                                        }}>
+                                        ✓
+                                    </button>
                                 </td>
 
                             </tr>

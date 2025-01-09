@@ -44,24 +44,31 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const [showMenu, setShowMenu] = useState(false);
 
 
+const cases = [
+    { title: 'Alojamiento', value: 'title' },
+    { title: 'Alimentación', value: 'assignee' },
+    { title: 'Sitios de Visita', value: 'provider' },
+    { title: 'Trenes', value: 'state' },
+    { title: 'Buses', value: 'priority' },
+    { title: 'Otros', value: 'priority' },
+];
 
+// Initialize `selectedViews` dynamically based on cases
+const [selectedViews, setSelectedViews] = useState<{ [key: string]: boolean }>({});
 
+useEffect(() => {
+    // Set initial state for selectedViews based on cases
+    const initialViews = cases.reduce((acc, item) => {
+        acc[item.title] = false; // Set all titles to true initially
 
+        if (item.title === 'Alojamiento') {
+            acc[item.title] = true; // Set 'Alojamiento
+        }
 
-
-    // Initialize `selectedViews` dynamically based on columns
-    const [selectedViews, setSelectedViews] = useState<{ [key: string]: boolean }>(
-        {}
-    );
-
-    useEffect(() => {
-        // Set initial state for selectedViews based on columns
-        const initialViews = columns.reduce((acc, column) => {
-            acc[column.title] = true; // Set all titles to false initially
-            return acc;
-        }, {} as { [key: string]: boolean });
-        setSelectedViews(initialViews);
-    }, [columns]);
+        return acc;
+    }, {} as { [key: string]: boolean });
+    setSelectedViews(initialViews);
+}, []);
 
     const handleSearch = () => {
         console.log(searchText);
@@ -88,69 +95,75 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     };
 
 const toggleView = (view: string) => {
-    setSelectedViews((prev) => {
-        const updatedViews = { ...prev, [view]: !prev[view] };
-        const column = columns.find(column => column.title === view);
-        if (column) {
-            setTimeout(() => setView(column.id), 0); // Delay the state update to avoid setState during render
-        }
-        return updatedViews;
+    setSelectedViews((prevViews) => {
+        const newViews = Object.keys(prevViews).reduce((acc, key) => {
+            acc[key] = key === view ? !prevViews[key] : false;
+            return acc;
+        }, {} as { [key: string]: boolean });
+        return newViews;
     });
 };
 
     return (
-        <div className="flex items-center gap-2 p-2 rounded-full bg-gray-100 shadow-md relative">
-            <input
-                type="text"
-                placeholder="Search Bookings..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                className="p-2 rounded-full border border-gray-300 outline-none w-full"
-            />
-            <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="p-2 rounded-full border border-gray-300 outline-none w-[9em]"
-            />
-            <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="p-2 rounded-full border border-gray-300 outline-none w-[9em]"
-            />
-            <button
-                onClick={handleSearch}
-                className="p-2 px-4 rounded-full border-none bg-blue-500 text-white cursor-pointer w-[9em]"
-            >
-                Search
+        <div>
+<button
+    onClick={() => setShowMenu((prev) => !prev)}
+    className="p-2 px-4 rounded-full border-none bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-pointer w-full shadow-lg transform transition-transform hover:scale-102">
+                Casos
             </button>
-            <button
-                onClick={() => setShowMenu((prev) => !prev)}
-                className="p-2 px-4 rounded-full border-none bg-slate-500 text-white cursor-pointer w-[9em]"
-            >
-                Views
-            </button>
+            <div className="h-4"></div>
+            <div className="flex items-center gap-2 p-2 rounded-full bg-gray-100 shadow-md relative">
+                <input
+                    type="text"
+                    placeholder="Search Bookings..."
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className="p-2 rounded-full border border-gray-300 outline-none w-full"
+                    onInput={handleSearch}
+                />
+                <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="p-2 rounded-full border border-gray-300 outline-none w-[9em]"
+                />
+                <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="p-2 rounded-full border border-gray-300 outline-none w-[9em]"
+                />
+                <button
+                    onClick={handleSearch}
+                    className="p-2 px-4 rounded-full border-none bg-blue-500 text-white cursor-pointer w-[9em]"
+                >
+                    Search
+                </button>
 
-            {showMenu && (
-                <div className="absolute top-[3.5rem] right-0 bg-white shadow-md p-4 rounded-md w-56">
-                    <h4 className="font-bold mb-2">Select Views</h4>
-                    {Object.keys(selectedViews).map((view) => (
-                        <div key={view} className="flex items-center gap-2 mb-2">
-                            <input
-                                type="checkbox"
-                                id={view}
-                                checked={selectedViews[view]}
-                                onChange={() => toggleView(view)}
-                                className="cursor-pointer"
-                            />
-                            <label htmlFor={view} className="cursor-pointer">
-                                {view}
-                            </label>
+
+                {showMenu && (
+                    <div className="absolute top-[0rem] left-0 bg-white shadow-md p-4 rounded-md w-full">
+                        <h4 className="font-bold mb-2">Selecciona un caso a trabajar</h4>
+                        <div className="flex-row flex">
+                        {Object.keys(selectedViews).map((view) => (
+                            <div key={view} className="flex flex-row items-center gap-2 mb-2">
+                                <div className="m-2"></div>
+                                <input
+                                    type="checkbox"
+                                    id={view}
+                                    checked={selectedViews[view]}
+                                    onChange={() => toggleView(view)}
+                                    className="cursor-pointer"
+                                />
+                                <label htmlFor={view} className="cursor-pointer">
+                                    <p className="text-lg"> {view}</p>
+                                </label>
+                            </div>
+                        ))}
                         </div>
-                    ))}
-                </div>
-            )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
