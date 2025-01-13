@@ -1,4 +1,4 @@
-import { ProvidersTable } from "@/components/providers/providers-table"
+import { ProvidersTable } from "@/components/providers-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function ProvidersPage() {

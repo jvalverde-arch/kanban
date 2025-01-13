@@ -1,4 +1,4 @@
-import { ProviderRatesTable } from "@/components/provider-rates/provider-rates-table"
+import { ProviderRatesTable } from "@/components/provider-rates-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function ProviderRatesPage() {

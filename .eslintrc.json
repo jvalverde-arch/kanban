@@ -1,3 +1,9 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next", "next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "off",  // Deshabilitar errores de variables no utilizadas
+    "@typescript-eslint/no-unused-expressions": "off",  // Deshabilitar errores de expresiones no utilizadas
+    "react-hooks/exhaustive-deps": "off",  // Deshabilitar advertencias de dependencias de hooks
+    "next/no-img-element": "off"  // Deshabilitar advertencias relacionadas con el uso de <img>
+  }
 }

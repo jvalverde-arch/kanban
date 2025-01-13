@@ -1,4 +1,4 @@
-import { FlightsTable } from "@/components/flights/flights-table"
+import { FlightsTable } from "@/components/flights-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function FlightsPage() {
